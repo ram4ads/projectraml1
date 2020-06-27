@@ -1,0 +1,30 @@
+#%RAML 1.0
+title: Sample API
+
+/unitedFlight:
+  get:
+    queryParameters:
+      destination:
+        required: true
+        minLength: 3
+        maxLength: 3
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+              "flights": [{
+                "code": "ER38sd",
+                "price": "400",
+                "origin": "CLE",
+                "destination": "SFO",
+                "departureDate": "2017/07/26",
+                "planetype": "Boeing 737",
+                  "totalSeats": 150,
+                  "emptySeats": 0
+              
+              }]
+              }
+      
+    
