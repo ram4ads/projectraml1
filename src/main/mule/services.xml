@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
     <http:listener-config name="services-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
     <apikit:config name="services-config" api="services.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <flow name="services-main">
+    <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="afbc944d-411e-4671-af11-561e7153b385" >
+		<http:request-connection host="mu.mulesoft-training.com" port="80" />
+	</http:request-config>
+	<flow name="services-main">
         <http:listener config-ref="services-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
@@ -123,36 +126,18 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="get:\unitedFlight:services-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <flow name="get:\unitedFlights:services-config">
+        <logger level="INFO" doc:name="Logger" doc:id="d7712068-9029-419f-9643-859a69e0f32c" />
+		<http:request method="GET" doc:name="Request" doc:id="5d8f90ae-2993-4101-b2cd-237548e9bd26" config-ref="HTTP_Request_configuration" path="#['/essentials/united/flights/' ++ attributes.queryParams.destination]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8307e2df-3efc-4a6d-8f13-8a79599872f2" />
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
-{
-  flights: [
-    {
-      code: "ER38sd",
-      price: 400,
-      origin: "MUA",
-      destination: "SFO",
-      departureDate: "2015/03/20",
-      planeType: "Boeing 737",
-      airlineName: "United",
-      emptySeats: 0
-    }, 
-    {
-      code: "ER45if",
-      price: 345.99,
-      origin: "MUA",
-      destination: "LAX",
-      departureDate: "2015/02/11",
-      planeType: "Boeing 737",
-      airlineName: "United",
-      emptySeats: 52
-    }
-  ]
-}]]></ee:set-payload>
+payload
+  
+]]></ee:set-payload>
             </ee:message>
         </ee:transform>
     </flow>
